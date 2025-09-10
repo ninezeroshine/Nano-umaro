@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+.DS_Store
+logs
+public/cache/*
+!public/cache/.gitkeep
+node_modules
+/vertex-ai-key.json
