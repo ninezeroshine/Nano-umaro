@@ -6,11 +6,11 @@ const RESOLUTIONS: { [key: string]: { width: number; height: number } } = {
   '9:16': { width: 720, height: 1280 },
 };
 
-export function generateBlankCanvasDataUrl(aspectRatio: string): string {
+export function generateBlankCanvasDataUrl(aspectRatio: string, color: string = 'black'): string {
   const resolution = RESOLUTIONS[aspectRatio];
   if (!resolution) {
     console.error(`Invalid aspect ratio: ${aspectRatio}. Defaulting to 1:1.`);
-    return generateBlankCanvasDataUrl('1:1');
+    return generateBlankCanvasDataUrl('1:1', color);
   }
 
   const { width, height } = resolution;
@@ -21,7 +21,7 @@ export function generateBlankCanvasDataUrl(aspectRatio: string): string {
   
   const ctx = canvas.getContext('2d');
   if (ctx) {
-    ctx.fillStyle = 'black';
+    ctx.fillStyle = color;
     ctx.fillRect(0, 0, width, height);
   }
   

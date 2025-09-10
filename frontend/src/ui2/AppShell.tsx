@@ -38,9 +38,18 @@ export function AppShell() {
   const [prompt, setPrompt] = React.useState('A photorealistic image of a red cat astronaut floating in space');
   const [n, setN] = React.useState(1);
   const [aspectRatio, setAspectRatio] = React.useState('1:1');
+  const [canvasColor, setCanvasColor] = React.useState('#000000'); // Black default
+  const [useAspectRatioCanvas, setUseAspectRatioCanvas] = React.useState(false);
+  const [isAspectRatioSectionOpen, setIsAspectRatioSectionOpen] = React.useState(false);
   const [imageDataUrls, setImageDataUrls] = React.useState<string[]>([]);
   const [imagePreviews, setImagePreviews] = React.useState<string[]>([]);
   const MAX_IMAGES = 5;
+
+  const onToggleAspectRatioSection = () => {
+    const newIsOpenState = !isAspectRatioSectionOpen;
+    setIsAspectRatioSectionOpen(newIsOpenState);
+    setUseAspectRatioCanvas(newIsOpenState); // Включаем/выключаем холст вместе с секцией
+  };
 
   const onFiles = (files: File[]) => {
     const readers = files.slice(0, MAX_IMAGES - imagePreviews.length).map(file => {
@@ -68,26 +77,36 @@ export function AppShell() {
   const onGenerate = () => {
     if (!canGenerate) return;
 
-    // 1. Генерируем белый холст с нужным соотношением сторон
-    const canvasDataUrl = generateBlankCanvasDataUrl(aspectRatio);
+    let payload;
 
-    // 2. Модифицируем промпт, делая его коротким и ясным
-    const modifiedPrompt = `${prompt.trim()} Соотношение сторон как у приложенного черного холста.`;
+    if (useAspectRatioCanvas) {
+      // 1. Генерируем холст с нужным соотношением сторон
+      const canvasDataUrl = generateBlankCanvasDataUrl(aspectRatio, canvasColor);
 
-    // 3. Собираем финальный массив изображений для отправки
-    //    - В режиме T2I - только холст
-    //    - В режиме I2I - сначала пользовательские изображения, потом холст (чтобы он был последней "инструкцией")
-    const finalImageDataUrls = mode === 'text-to-image' 
-      ? [canvasDataUrl] 
-      : [...imageDataUrls, canvasDataUrl];
-    
-    // 4. Формируем payload. Режим всегда 'image-to-image', если выбран aspect ratio
-    const payload = { 
-      prompt: modifiedPrompt, 
-      n, 
-      mode: 'image-to-image' as Mode, // Принудительно ставим режим I2I
-      imageDataUrls: finalImageDataUrls
-    };
+      // 2. Модифицируем промпт
+      const modifiedPrompt = `${prompt.trim()} Соотношение сторон как у приложенного холста.`;
+
+      // 3. Собираем финальный массив изображений для отправки
+      const finalImageDataUrls = mode === 'text-to-image' 
+        ? [canvasDataUrl] 
+        : [...imageDataUrls, canvasDataUrl];
+      
+      // 4. Формируем payload. Режим всегда 'image-to-image'
+      payload = { 
+        prompt: modifiedPrompt, 
+        n, 
+        mode: 'image-to-image' as Mode, // Принудительно ставим режим I2I
+        imageDataUrls: finalImageDataUrls
+      };
+    } else {
+      // Формируем стандартный payload без холста и модификаций
+      payload = {
+        prompt: prompt.trim(),
+        n,
+        mode,
+        imageDataUrls: mode === 'image-to-image' ? imageDataUrls : [],
+      };
+    }
     
     gen.mutate(
       payload,
@@ -232,6 +251,10 @@ export function AppShell() {
         setMode={setMode} 
         aspectRatio={aspectRatio}
         setAspectRatio={setAspectRatio}
+        isAspectRatioSectionOpen={isAspectRatioSectionOpen}
+        onToggleAspectRatioSection={onToggleAspectRatioSection}
+        canvasColor={canvasColor}
+        setCanvasColor={setCanvasColor}
         prompt={prompt} 
         setPrompt={setPrompt} 
         n={n} 

@@ -7,6 +7,10 @@ export interface RightPanelProps {
   setMode: (m: Mode) => void;
   aspectRatio: string;
   setAspectRatio: (ar: string) => void;
+  isAspectRatioSectionOpen: boolean;
+  onToggleAspectRatioSection: () => void;
+  canvasColor: string;
+  setCanvasColor: (c: string) => void;
   prompt: string;
   setPrompt: (v: string) => void;
   n: number;
@@ -23,6 +27,7 @@ export interface RightPanelProps {
 }
 
 const ASPECT_RATIOS = ['16:9', '4:3', '1:1', '3:4', '9:16'];
+const COLORS = ['#000000', '#FFFFFF', '#808080', '#EF4444', '#F59E0B', '#22C55E', '#3B82F6', '#EC4899'];
 
 export function RightPanel(props: RightPanelProps) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -81,20 +86,43 @@ export function RightPanel(props: RightPanelProps) {
           </div>
         )}
 
-        <div className="panel-row">
-          <label>Соотношение сторон</label>
-          <div className="aspect-ratio-selector">
-            {ASPECT_RATIOS.map(ar => (
-              <button 
-                key={ar} 
-                className={`aspect-ratio-btn ${props.aspectRatio === ar ? 'active' : ''}`}
-                onClick={() => props.setAspectRatio(ar)}
-                disabled={props.generating}
-              >
-                {ar}
-              </button>
-            ))}
+        <div className={`panel-row collapsible-section ${props.isAspectRatioSectionOpen ? 'open' : ''}`}>
+          <div className="collapsible-header" onClick={props.onToggleAspectRatioSection}>
+            <label>Соотношение сторон и цвет</label>
+            <span className="chevron"></span>
           </div>
+          {props.isAspectRatioSectionOpen && (
+            <>
+              <div className="aspect-ratio-selector">
+                {ASPECT_RATIOS.map(ar => (
+                  <button 
+                    key={ar} 
+                    className={`aspect-ratio-btn ${props.aspectRatio === ar ? 'active' : ''}`}
+                    onClick={() => props.setAspectRatio(ar)}
+                    disabled={props.generating}
+                  >
+                    {ar}
+                  </button>
+                ))}
+              </div>
+              <div className="panel-row" style={{marginTop: '16px'}}>
+                <label>Цвет холста</label>
+                <div className="color-selector">
+                  {COLORS.map(color => (
+                    <button
+                      key={color}
+                      className={`color-swatch ${props.canvasColor === color ? 'active' : ''}`}
+                      style={{ backgroundColor: color }}
+                      onClick={() => props.setCanvasColor(color)}
+                      aria-label={`Выбрать цвет ${color}`}
+                    >
+                      {props.canvasColor === color && <span className="checkmark">✔</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="panel-row">

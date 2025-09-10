@@ -24,10 +24,9 @@ export function registerGenerateRoute(app: FastifyInstance) {
       imageModel: config.vertexAI.imageModel,
       mode,
       n,
-      prompt: `"${prompt}"`,
+      prompt: `"${prompt}"`, 
       promptLength: prompt?.length || 0,
-      imageCount: imageDataUrls?.length || 0,
-      fullBody: req.body
+      imageCount: imageDataUrls?.length || 0
     }, 'Generation request');
 
     if (!prompt || typeof prompt !== 'string') {
@@ -61,8 +60,8 @@ export function registerGenerateRoute(app: FastifyInstance) {
       // Анализируем ошибку Vertex AI
       const errorAnalysis = analyzeVertexAIError(err, n);
       
-      app.log.error({ 
-        err, 
+      app.log.error({
+        err,
         provider: 'vertex',
         errorAnalysis,
         requestedN: n,
@@ -78,7 +77,7 @@ export function registerGenerateRoute(app: FastifyInstance) {
         fullMessage += '\n\nРекомендации:\n• ' + errorAnalysis.suggestions.join('\n• ');
       }
       
-      return reply.code(status).send({ 
+      return reply.code(status).send({
         images: [], 
         error: fullMessage,
         errorType: errorAnalysis.errorType,

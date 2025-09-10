@@ -11,7 +11,7 @@ if not exist "node_modules" (
   call npm install
 )
 echo Starting backend on port 3000...
-start "Nano Backend" cmd /k "npm run dev"
+start "Nano Backend" cmd /k "chcp 65001 > nul && npm run dev"
 popd
 
 REM Frontend
@@ -21,7 +21,7 @@ if not exist "node_modules" (
   call npm install
 )
 echo Starting frontend (Vite) on http://127.0.0.1:5173 ...
-start "Nano Frontend" cmd /k "npm run dev"
+start "Nano Frontend" cmd /k "chcp 65001 > nul && npm run dev"
 popd
 
 REM Give servers a moment and open browser

@@ -19,22 +19,20 @@
 
 Для остановки просто закройте оба окна терминала.
 
-## Технологический стек
+## Основные возможности
 
-### Backend
-
-- Node.js 20+
-- TypeScript
-- Fastify
-- Google Vertex AI SDK
-- pino / pino-pretty (структурированное логирование)
-- p-limit (управление параллелизмом)
-
-### Frontend
-
-- Vite
-- React 18 + TypeScript
-- @tanstack/react-query (управление состоянием сервера)
+- **Два режима генерации**:
+  - **Text-to-Image**: Классическая генерация по текстовому описанию.
+  - **Image-to-Image**: Генерация на основе одного или нескольких изображений-референсов.
+- **Управление параметрами**:
+  - Настройка количества генерируемых изображений (от 1 до 6).
+- **Холст для контроля аспекта и цвета**:
+  - В панели настроек доступен раскрывающийся раздел "Соотношение сторон и цвет".
+  - При его активации к запросу добавляется цветной холст, который помогает модели лучше следовать заданному соотношению сторон.
+  - Пользователь может выбрать один из 8 предустановленных цветов для холста.
+  - Эта функция работает как в режиме Text-to-Image, так и в Image-to-Image (где холст добавляется последним к списку референсов).
+- **Галерея изображений**: Просмотр ранее сгенерированных изображений.
+- **Корректное отображение кириллицы**: Стартовый скрипт `start-nano.cmd` автоматически настраивает кодировку консоли для правильного отображения логов на Windows.
 
 ## Структура проекта (основное)
 
@@ -121,7 +119,7 @@ REQUEST_TIMEOUT_MS=60000
   "prompt": "A photorealistic image of a red cat astronaut in space",
   "n": 1,
   "mode": "text-to-image" | "image-to-image",
-  "imageDataUrl": "data:image/png;base64,..."   // только для image-to-image
+  "imageDataUrls": ["data:image/png;base64,..."]   // только для image-to-image
 }
 ```
 
@@ -159,7 +157,7 @@ Invoke-RestMethod -Uri http://localhost:3000/api/generate -Method Post -ContentT
 ```powershell
 # Замените 'iVBORw0K...' на ваш base64-код изображения
 $img = 'data:image/png;base64,iVBORw0K...'
-$json = '{"prompt":"Enhance details", "n":1, "mode":"image-to-image", "imageDataUrl":"' + $img + '"}'
+$json = '{"prompt":"Enhance details", "n":1, "mode":"image-to-image", "imageDataUrls":["' + $img + '"]}'
 Invoke-RestMethod -Uri http://localhost:3000/api/generate -Method Post -ContentType 'application/json' -Body $json
 ```
 

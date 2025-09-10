@@ -714,9 +714,50 @@ body { margin: 0; }
   }
 }
 
+.collapsible-section {
+  border: 1px solid var(--outline-variant);
+  border-radius: 8px;
+  padding: 4px 12px;
+  transition: background-color 0.2s;
+}
+
+.collapsible-section.open {
+  background-color: var(--surface-container);
+}
+
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 0;
+}
+
+.collapsible-header:hover label {
+  color: var(--primary);
+}
+
+.chevron {
+  width: 12px;
+  height: 12px;
+  border-style: solid;
+  border-width: 0 2px 2px 0;
+  display: inline-block;
+  padding: 3px;
+  transform: rotate(45deg);
+  transition: transform 0.2s;
+  opacity: 0.7;
+}
+
+.collapsible-section.open .chevron {
+  transform: rotate(-135deg);
+}
+
 .aspect-ratio-selector {
   display: flex;
   gap: 8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 .aspect-ratio-btn {
@@ -786,4 +827,57 @@ body { margin: 0; }
   opacity: 0.5;
   cursor: not-allowed;
   background-color: transparent;
+}
+
+.color-selector {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.color-swatch {
+  /* Reset button styles */
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0;
+  margin: 0;
+  
+  /* Dimensions */
+  width: 28px;
+  height: 28px;
+  
+  /* Shape & Border */
+  border-radius: 50%;
+  border: 2px solid var(--outline-variant);
+  
+  /* Other */
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  
+  /* Flex for checkmark */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-swatch:hover {
+  transform: scale(1.15);
+  border-color: var(--outline);
+}
+
+.color-swatch.active {
+  border-color: var(--primary);
+  transform: scale(1.15);
+  box-shadow: 0 0 8px var(--primary);
+}
+
+.color-swatch .checkmark {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+  mix-blend-mode: difference;
+  filter: invert(1);
+  pointer-events: none; /* Make sure checkmark doesn't steal clicks */
 }

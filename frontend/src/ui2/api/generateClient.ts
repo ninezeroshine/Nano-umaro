@@ -3,7 +3,7 @@ import type { GenerateBody, GenerateResponse } from '../types/generate';
 export async function generateImages(body: GenerateBody, signal?: AbortSignal): Promise<GenerateResponse> {
   const res = await fetch('/api/generate', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json; charset=UTF-8' },
     body: JSON.stringify(body),
     signal,
   });
