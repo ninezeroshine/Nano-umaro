@@ -1,14 +1,16 @@
 import React from 'react';
 import { ImageModal } from './ImageModal';
+import { useDeleteImage } from '../hooks/useGallery';
+import type { GalleryImage } from '../types/gallery'; // Import from central types
 
 export interface GalleryProps {
-  images: string[];
+  images: GalleryImage[];
   title?: string;
   showActions?: boolean;
-  // Для infinite scroll
   onLoadMore?: () => void;
   hasMore?: boolean;
   isLoadingMore?: boolean;
+  onMoveToReference?: (imagePath: string) => void;
 }
 
 export function Gallery({ 
@@ -18,32 +20,30 @@ export function Gallery({
   onLoadMore,
   hasMore,
   isLoadingMore,
+  onMoveToReference = () => {},
 }: GalleryProps) {
-  const [modalImage, setModalImage] = React.useState<string | null>(null);
+  const [modalImage, setModalImage] = React.useState<GalleryImage | null>(null);
+  const deleteMutation = useDeleteImage();
   const observer = React.useRef<IntersectionObserver>();
 
-  // Этот callback будет следить за последним элементом в галерее.
-  // Как только он появится на экране, вызовется onLoadMore.
   const lastImageRef = React.useCallback(node => {
     if (isLoadingMore) return;
     if (observer.current) observer.current.disconnect();
-    
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && hasMore && onLoadMore) {
         onLoadMore();
       }
     });
-    
     if (node) observer.current.observe(node);
   }, [isLoadingMore, hasMore, onLoadMore]);
 
-  if (!images?.length) return <div className="info">Пока нет изображений</div>;
+  if (!images?.length) return null; // Return null instead of a div
 
   const onDownloadAll = async () => {
-    for (const url of images) {
+    for (const image of images) {
       const a = document.createElement('a');
-      a.href = url;
-      a.download = url.split('/').pop() || 'image.png';
+      a.href = image.path;
+      a.download = image.filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -51,35 +51,41 @@ export function Gallery({
     }
   };
 
+  const handleDelete = (filename: string) => {
+    if (window.confirm(`Вы уверены, что хотите удалить ${filename}?`)) {
+      deleteMutation.mutate(filename);
+    }
+  };
+
   return (
     <section className="ng-gallery">
       {title && <h3 className="gallery-title">{title}</h3>}
-      {showActions && (
+      {showActions && images.length > 1 && (
         <div className="gallery-actions">
           <button onClick={onDownloadAll}>Скачать все ({images.length})</button>
         </div>
       )}
       <div className="grid">
-        {images.map((src, index) => {
+        {images.map((image, index) => {
           const isLast = index === images.length - 1;
           return (
             <figure 
-              key={src + index} 
+              key={image.path + index} 
               className="card"
-              // Если это последний элемент, вешаем на него "наблюдатель"
               ref={isLast ? lastImageRef : null}
             >
               <img 
-                src={src} 
-                alt="Generated" 
-                onClick={() => setModalImage(src)}
+                src={image.path} 
+                alt={image.filename} 
+                onClick={() => setModalImage(image)}
                 style={{ cursor: 'pointer' }}
                 title="Нажмите для увеличения"
               />
               <figcaption>
-                <button onClick={() => setModalImage(src)} className="view-btn">Увеличить</button>
-                <a href={src} download>Скачать</a>
-                <button onClick={() => navigator.clipboard.writeText(location.origin + src)}>Копировать</button>
+                <a href={image.path} download={image.filename} className="card-btn">Скачать</a>
+                <button onClick={() => handleDelete(image.filename)} className="card-btn btn-delete" disabled={deleteMutation.isPending}>
+                  {deleteMutation.isPending && deleteMutation.variables === image.filename ? '…' : 'Удалить'}
+                </button>
               </figcaption>
             </figure>
           )
@@ -90,8 +96,12 @@ export function Gallery({
       
       {modalImage && (
         <ImageModal 
-          src={modalImage} 
+          image={modalImage} 
+          allImages={images}
           onClose={() => setModalImage(null)}
+          onDelete={handleDelete}
+          onMoveToReference={onMoveToReference}
+          onNavigate={setModalImage}
         />
       )}
     </section>

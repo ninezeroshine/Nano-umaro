@@ -7,3 +7,4 @@ public/cache/*
 !public/cache/.gitkeep
 node_modules
 /vertex-ai-key.json
+/.gemini

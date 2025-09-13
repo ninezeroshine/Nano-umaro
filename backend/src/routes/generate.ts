@@ -49,7 +49,13 @@ export function registerGenerateRoute(app: FastifyInstance) {
         ? await vertexAIService.generateTextToImage({ prompt })
         : await vertexAIService.generateImageToImage({ prompt, imageDataUrls: imageDataUrls! });
 
-      const { publicPath } = await saveDataUrl(dataUrl);
+      const metadata = {
+        prompt,
+        mode,
+        imageModel: config.vertexAI.imageModel,
+      };
+
+      const { publicPath } = await saveDataUrl(dataUrl, metadata);
       return publicPath;
     }));
 

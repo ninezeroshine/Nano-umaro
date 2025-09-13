@@ -3,6 +3,12 @@ export interface GalleryImage {
   path: string;
   timestamp: number;
   size: number;
+  metadata?: {
+    prompt?: string;
+    model?: string;
+    mode?: string;
+    [key: string]: any;
+  };
 }
 
 export interface GalleryResponse {

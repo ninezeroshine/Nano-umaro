@@ -50,7 +50,7 @@ export const config: AppConfig = {
   vertexAI: {
     projectId: projectIdFromKey || process.env.GOOGLE_CLOUD_PROJECT,
     location: process.env.GOOGLE_CLOUD_LOCATION || 'us-central1',
-    imageModel: process.env.VERTEX_IMAGE_MODEL || 'gemini-2.5-flash-image-preview',
+    imageModel: process.env.IMAGE_MODEL || 'gemini-2.5-flash-image-preview',
     requestTimeoutMs: parseNumber(process.env.REQUEST_TIMEOUT_MS, 60_000),
   },
 };
